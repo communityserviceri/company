@@ -10,6 +10,11 @@
   --maxw:1200px; /* Sedikit lebih lebar */
   font-family: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   font-size: 16px; /* Base font size */
+  
+  /* Modern Animation Variables */
+  --animation-delay-base: 0.1s;
+  --animation-duration-base: 0.8s;
+  --animation-ease: cubic-bezier(0.25, 0.46, 0.45, 0.94); /* ease-out-quad */
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html { scroll-behavior: smooth; } /* Menambahkan smooth scroll global */
@@ -74,7 +79,15 @@ nav a.active, nav a:hover{
   padding: 48px 40px; /* Padding lebih besar */
   margin-bottom:32px; /* Margin lebih besar */
   box-shadow:0 10px 30px rgba(11,107,138,0.2); /* Bayangan lebih menonjol */
+  position: relative;
+  overflow: hidden; /* Penting untuk animasi */
+  animation: heroBackgroundZoom 10s ease-out forwards;
 }
+@keyframes heroBackgroundZoom {
+  from { background-size: 105% auto; }
+  to { background-size: 100% auto; }
+}
+
 .hero-left{
   flex: unset; /* Dihapus dari flex */
   max-width: 650px; /* Batasi lebar teks agar mudah dibaca */
@@ -90,14 +103,30 @@ nav a.active, nav a:hover{
   margin-bottom:12px;
   font-size: 0.9em;
   letter-spacing: 0.5px;
+  
+  /* Hero Animation (Kicker) */
+  opacity: 0;
+  transform: translateX(-20px);
+  animation: slideInLeft 0.7s var(--animation-ease) forwards;
+  animation-delay: 0.2s;
 }
 h2{font-size:32px;margin-bottom:12px;line-height:1.3;}
 .hero h2 {
   color: #ffffff; /* Teks hero jadi putih */
+  /* Hero Animation (Heading) */
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInFromBottom 0.8s var(--animation-ease) forwards;
+  animation-delay: 0.4s;
 }
 p.lead{color:#334155;margin-bottom:24px;font-size:1.1em;} /* Warna lebih gelap, ukuran lebih besar */
 .hero p.lead {
   color: #e0f8f7; /* Teks lead hero jadi putih muda */
+  /* Hero Animation (Lead) */
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInFromBottom 0.8s var(--animation-ease) forwards;
+  animation-delay: 0.6s;
 }
 .cta{display:flex;gap:16px} /* Jarak lebih besar */
 .btn{
@@ -113,9 +142,29 @@ p.lead{color:#334155;margin-bottom:24px;font-size:1.1em;} /* Warna lebih gelap, 
   cursor: pointer;
   font-size: 1em;
 }
+
+/* Hero Animation (CTA Buttons) */
+.hero-left .cta .btn {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInFromBottom 0.8s var(--animation-ease) forwards;
+}
+.hero-left .cta .btn:first-child { animation-delay: 0.8s; }
+.hero-left .cta .btn:last-child { animation-delay: 0.9s; }
+
+/* Keyframes for Hero Animations */
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-40px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes fadeInFromBottom {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 .btn:hover{
   transform: translateY(-3px);
-  box-shadow:0 12px 30px rgba(11,107,138,0.3);
+  box-shadow:0 12px 30px rgba(11,107,138,0.35); /* Shadow lebih kuat */
 }
 .btn.outline{
   background:transparent;
@@ -124,7 +173,7 @@ p.lead{color:#334155;margin-bottom:24px;font-size:1.1em;} /* Warna lebih gelap, 
   box-shadow:none;
 }
 .btn.outline:hover{
-  background:rgba(255,255,255,0.1);
+  background:rgba(255,255,255,0.15); /* Background sedikit lebih gelap */
   box-shadow:none;
   transform: translateY(-3px);
 }
@@ -139,12 +188,19 @@ p.lead{color:#334155;margin-bottom:24px;font-size:1.1em;} /* Warna lebih gelap, 
   background:var(--card);
   border-radius:16px; /* Radius lebih besar */
   padding:28px; /* Padding lebih besar */
-  box-shadow:0 8px 25px rgba(2,6,23,0.05); /* Bayangan lebih menonjol */
   border: 1px solid rgba(11,107,138,0.03);
+  /* Modern Hover Effect */
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 4px 15px rgba(2,6,23,0.02); /* Default shadow */
 }
 @media(min-width:880px){
   .card.wide{grid-column:span 8}
   .card.side{grid-column:span 4}
+}
+
+.card:hover {
+  transform: translateY(-8px); /* Sedikit lebih tinggi */
+  box-shadow: 0 16px 35px rgba(2,6,23,0.08); /* Shadow lebih besar dan menyebar */
 }
 
 h3{font-size:24px;margin-bottom:15px;letter-spacing:0.2px;} /* Lebih besar */
@@ -159,12 +215,13 @@ h3{font-size:24px;margin-bottom:15px;letter-spacing:0.2px;} /* Lebih besar */
   border-radius:12px; /* Radius lebih besar */
   text-align:center;
   border:1px solid rgba(11,107,138,0.05); /* Border lebih menonjol */
+  /* Modern Hover Effect */
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
   box-shadow: 0 4px 15px rgba(2,6,23,0.02);
-  transition: all 0.3s ease;
 }
 .feature:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 20px rgba(2,6,23,0.05);
+  transform: translateY(-8px);
+  box-shadow: 0 16px 35px rgba(2,6,23,0.08);
 }
 .feature h4{font-size:16px;margin-bottom:8px;font-weight:700;} /* Lebih besar */
 .feature p{font-size:14px;color:#475569;} /* Ukuran dan warna */
@@ -176,14 +233,15 @@ h3{font-size:24px;margin-bottom:15px;letter-spacing:0.2px;} /* Lebih besar */
   padding:18px; /* Padding lebih besar */
   border-radius:12px; /* Radius lebih besar */
   border:1px solid rgba(11,107,138,0.06); /* Border lebih menonjol */
-  box-shadow: 0 4px 15px rgba(2,6,23,0.02);
-  transition: all 0.3s ease;
   display: flex;
   flex-direction: column;
+  /* Modern Hover Effect */
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 4px 15px rgba(2,6,23,0.02);
 }
 .proj:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 20px rgba(2,6,23,0.05);
+  transform: translateY(-8px);
+  box-shadow: 0 16px 35px rgba(2,6,23,0.08);
 }
 /* Style baru untuk thumb proyek (gambar asli) */
 .proj .thumb{
@@ -198,7 +256,6 @@ h3{font-size:24px;margin-bottom:15px;letter-spacing:0.2px;} /* Lebih besar */
 .proj p{font-size:14px;color:#475569;margin-bottom:12px; flex-grow: 1;} /* Ukuran dan warna */
 
 /* Clients (UPDATED) */
-/* Menghapus style .client yang lama */
 /* Style baru untuk "Logo Wall" */
 .client-logos {
   display: flex;
@@ -220,6 +277,12 @@ h3{font-size:24px;margin-bottom:15px;letter-spacing:0.2px;} /* Lebih besar */
   max-height: 50px; /* Atur tinggi maksimum logo */
   max-width: 150px; /* Atur lebar maksimum logo */
   object-fit: contain;
+  transition: transform 0.2s ease-out;
+}
+.client-logos img:hover {
+  transform: scale(1.08); /* Sedikit membesar saat hover */
+  filter: grayscale(0%); /* Warna kembali saat hover individual */
+  opacity: 1;
 }
 
 /* Testimonials (NEW SECTION) */
@@ -234,7 +297,13 @@ h3{font-size:24px;margin-bottom:15px;letter-spacing:0.2px;} /* Lebih besar */
   border: 1px solid rgba(11,107,138,0.05);
   border-radius: 12px;
   padding: 24px;
+  /* Modern Hover Effect */
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
   box-shadow: 0 4px 15px rgba(2,6,23,0.02);
+}
+.testimonial-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 16px 35px rgba(2,6,23,0.08);
 }
 .testimonial-card .quote {
   font-size: 1.05em; /* Sedikit lebih besar */
@@ -284,7 +353,7 @@ input,textarea,select{
 input:focus, textarea:focus, select:focus {
   outline: none;
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(11,107,138,0.1);
+  box-shadow: 0 0 0 4px rgba(11,107,138,0.2); /* Shadow lebih menonjol */
 }
 textarea{min-height:150px;resize:vertical} /* Tinggi minimum lebih besar */
 .form-actions{display:flex;gap:12px;justify-content:flex-end; margin-top: 10px;} /* Jarak lebih besar */
@@ -319,11 +388,11 @@ footer{
   width:100%;
   box-shadow:0 15px 40px rgba(2,6,23,0.2); /* Bayangan lebih menonjol */
   position: relative;
-  animation: fadeInScale 0.3s ease-out forwards; /* Animasi modal */
+  animation: fadeInScale 0.4s var(--animation-ease) forwards; /* Animasi modal */
 }
 @keyframes fadeInScale {
-  from { opacity: 0; transform: scale(0.9); }
-  to { opacity: 1; transform: scale(1); }
+  from { opacity: 0; transform: translateY(20px) scale(0.9); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 #modalTitle{font-size:26px; margin-bottom:10px;}
 #modalDesc{font-size:16px; line-height:1.7;}
@@ -354,6 +423,33 @@ footer{
   display: block;
   opacity: 1;
 }
+
+/* ---------- Modern Scroll Reveal Base (Modern) ---------- */
+.animate-on-scroll {
+  opacity: 0;
+  transform: translateY(30px) scale(0.98); /* Lebih dramatis */
+  filter: blur(5px); /* Efek blur saat muncul */
+  transition: opacity var(--animation-duration-base) var(--animation-ease),
+              transform var(--animation-duration-base) var(--animation-ease),
+              filter var(--animation-duration-base) var(--animation-ease);
+}
+
+.animate-on-scroll.is-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  filter: blur(0);
+}
+
+/* Animasi dengan delay yang bervariasi */
+.cols .feature:nth-child(2) { transition-delay: calc(var(--animation-delay-base) * 1); }
+.cols .feature:nth-child(3) { transition-delay: calc(var(--animation-delay-base) * 2); }
+.cols .feature:nth-child(4) { transition-delay: calc(var(--animation-delay-base) * 3); }
+
+.projects .proj:nth-child(2) { transition-delay: calc(var(--animation-delay-base) * 1); }
+.projects .proj:nth-child(3) { transition-delay: calc(var(--animation-delay-base) * 2); }
+
+.testimonial-grid .testimonial-card:nth-child(2) { transition-delay: calc(var(--animation-delay-base) * 1); }
+.testimonial-grid .testimonial-card:nth-child(3) { transition-delay: calc(var(--animation-delay-base) * 2); }
 
 
 /* Responsive minor */
