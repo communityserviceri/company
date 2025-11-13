@@ -16,9 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const targetElement = document.querySelector(id);
       
       if (targetElement) {
-        // Hapus aktif dari semua link
         document.querySelectorAll('nav a').forEach(x => x.classList.remove('active'));
-        // Tambahkan aktif ke link yang diklik
         a.classList.add('active');
         
         const headerOffset = document.querySelector('header').offsetHeight + 20;
@@ -32,30 +30,29 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // ---------- (BARU) Scroll-Spy (Update Nav saat Scroll) ----------
+  // ---------- Scroll-Spy (Update Nav saat Scroll) ----------
   const sections = document.querySelectorAll('section[id]');
   const navLinks = document.querySelectorAll('nav a');
 
   const updateActiveNav = () => {
-    let currentSectionId = 'top'; // Default ke 'Beranda' (id="top")
-    
+    let currentSectionId = 'top'; 
+    const scrollY = window.pageYOffset + 150; // Offset untuk akurasi yang lebih baik
+
     sections.forEach(section => {
-      const sectionTop = section.getBoundingClientRect().top;
-      const headerOffset = 100; // Offset 100px
+      const sectionTop = section.offsetTop;
+      const sectionHeight = section.offsetHeight;
       
-      // Cek apakah bagian ini ada di viewport
-      if (sectionTop <= headerOffset && sectionTop + section.offsetHeight > headerOffset) {
+      if (scrollY >= sectionTop && scrollY < sectionTop + sectionHeight) {
         currentSectionId = section.getAttribute('id');
       }
     });
-
+    
     // Cek section 'top' (hero) secara khusus
     const heroSection = document.getElementById('hero');
     if (heroSection && heroSection.getBoundingClientRect().top > 0) {
       currentSectionId = 'top';
     }
 
-    // Update kelas 'active' di navigasi
     navLinks.forEach(link => {
       link.classList.remove('active');
       if (link.getAttribute('href') === `#${currentSectionId}`) {
@@ -64,10 +61,37 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   };
 
-  // Tambahkan listener ke window
   window.addEventListener('scroll', updateActiveNav);
-  // Panggil sekali saat load
   updateActiveNav();
+
+
+  // ---------- (MODERN) Intersection Observer for Scroll Reveal Animations ----------
+  // Elemen yang akan dianimasikan saat masuk viewport
+  const animateElements = document.querySelectorAll('.card, .feature, .proj, .client-logos, .testimonial-card');
+
+  const observerOptions = {
+    root: null, // Menggunakan viewport sebagai root
+    rootMargin: '0px',
+    threshold: 0.1 // Elemen terlihat 10% di viewport untuk memicu
+  };
+
+  const observerCallback = (entries, observer) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('is-visible');
+        // Hentikan observasi setelah terlihat agar animasi tidak berulang
+        observer.unobserve(entry.target); 
+      }
+      // Tidak perlu else { remove } jika animasi hanya ingin berjalan sekali
+    });
+  };
+
+  const observer = new IntersectionObserver(observerCallback, observerOptions);
+
+  animateElements.forEach(element => {
+    element.classList.add('animate-on-scroll'); // Tambahkan kelas dasar untuk animasi
+    observer.observe(element);
+  });
 
   // ---------- Tombol CTA Hero ke Kontak ----------
   const btnContact = document.getElementById('btnContact');
@@ -82,7 +106,6 @@ document.addEventListener('DOMContentLoaded', () => {
           top: elementPosition - headerOffset,
           behavior: 'smooth'
         });
-        // Fokus ke input nama untuk UX yang lebih baik
         try {
           document.getElementById('name').focus();
         } catch (focusError) {
@@ -92,7 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // ---------- (DIPERBARUI) Form Kontak Profesional (AJAX ke Formspree) ----------
+  // ---------- Form Kontak Profesional (AJAX ke Formspree) ----------
   const contactForm = document.getElementById('contactForm');
   const formAlert = document.getElementById('form-alert');
 
@@ -100,7 +123,6 @@ document.addEventListener('DOMContentLoaded', () => {
     contactForm.addEventListener('submit', async function(ev) {
       ev.preventDefault();
 
-      // Validasi dasar sisi klien
       const name = document.getElementById('name').value.trim();
       const email = document.getElementById('email').value.trim();
       const message = document.getElementById('message').value.trim();
@@ -114,7 +136,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return false;
       }
 
-      // Tampilkan status "mengirim..."
       const submitButton = contactForm.querySelector('button[type="submit"]');
       submitButton.textContent = 'Mengirim...';
       submitButton.disabled = true;
@@ -131,11 +152,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         if (response.ok) {
-          // Sukses
           showAlert('success', 'Pesan Anda telah terkirim! Kami akan segera menghubungi Anda.');
           contactForm.reset();
         } else {
-          // Error dari server
           const data = await response.json();
           if (Object.hasOwn(data, 'errors')) {
             const errorMsg = data["errors"].map(error => error["message"]).join(", ");
@@ -145,41 +164,35 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         }
       } catch (error) {
-        // Error jaringan
         console.error('Fetch error:', error);
         showAlert('error', 'Terjadi masalah jaringan. Silakan periksa koneksi Anda.');
       } finally {
-        // Kembalikan tombol ke status normal
         submitButton.textContent = 'Kirim Pesan';
         submitButton.disabled = false;
       }
     });
   }
 
-  // Helper: Validasi Email
   function validateEmail(email) {
     const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     return re.test(String(email).toLowerCase());
   }
 
-  // Helper: Tampilkan Alert
   function showAlert(type, message) {
     if (formAlert) {
       formAlert.className = `alert ${type} show`;
       formAlert.textContent = message;
-      // Scroll ke alert agar terlihat
       formAlert.scrollIntoView({ behavior: 'smooth', block: 'center' });
       
       setTimeout(() => {
         formAlert.classList.remove('show');
-      }, 5000); // Sembunyikan setelah 5 detik
+      }, 5000); 
     } else {
       console.log(`Alert (${type}): ${message}`);
     }
   }
 
   // ---------- Fungsi Modal Proyek (Global) ----------
-  // Dibuat global agar bisa dipanggil dari `onclick` di HTML
   const modal = document.getElementById('modal');
   const modalTitle = document.getElementById('modalTitle');
   const modalDesc = document.getElementById('modalDesc');
@@ -190,14 +203,9 @@ document.addEventListener('DOMContentLoaded', () => {
       modalTitle.textContent = title;
       modalDesc.textContent = desc;
       modal.style.display = 'flex';
-      document.body.style.overflow = 'hidden'; // Mencegah scroll background
-
-      // Set mailto di tombol kontak modal
+      document.body.style.overflow = 'hidden'; 
       const subj = encodeURIComponent('Pertanyaan tentang proyek: ' + title);
-      // Tombol ini sekarang mengarah ke #contact, bukan mailto
       modalContactBtn.href = '#contact'; 
-      // Jika ingin mailto, ganti baris di atas dengan:
-      // modalContactBtn.href = 'mailto:sims.simanmandirisentosa@gmail.com?subject='+subj;
     } else {
       console.error("Elemen modal tidak ditemukan.");
     }
@@ -206,18 +214,16 @@ document.addEventListener('DOMContentLoaded', () => {
   window.closeModal = function() {
     if (modal) {
       modal.style.display = 'none';
-      document.body.style.overflow = ''; // Kembalikan scroll
+      document.body.style.overflow = ''; 
     }
   }
 
-  // Aksesibilitas: tutup modal dengan tombol Escape
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && modal && modal.style.display === 'flex') {
       closeModal();
     }
   });
 
-  // Tutup modal saat klik di luar area kartu modal
   if (modal) {
     modal.addEventListener('click', (e) => {
       if (e.target === modal) {
